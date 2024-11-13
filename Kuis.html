@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ujian Hacker</title>
+  <style>
+    /* Desain tema hitam biru dengan efek Google Forms */
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #000;
+      color: #00bfff;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .intro h1 {
+      font-size: 2em;
+      text-align: center;
+      animation: fadeIn 2s ease-in-out;
+    }
+
+    .button, .option-btn, .submit-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      border: none;
+      color: #fff;
+      background: #1e90ff;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+      width: 100%;
+      max-width: 250px;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+      display: block;
+      text-align: center;
+    }
+
+    .button:hover, .option-btn:hover, .submit-btn:hover {
+      color: #1e90ff;
+      background: #fff;
+    }
+
+    .input-container, .option-container, .choices-container {
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #222;
+      border-radius: 8px;
+      box-shadow: 0px 0px 15px rgba(0, 191, 255, 0.3);
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 1em;
+      margin-top: 10px;
+      border-radius: 5px;
+      border: 1px solid #555;
+      background: #333;
+      color: #00bfff;
+    }
+
+    .choice-btn {
+      display: block;
+      background: #1e1e1e;
+      color: #00bfff;
+      border: 2px solid #1e90ff;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .choice-btn:hover {
+      background: #1e90ff;
+      color: #fff;
+    }
+
+    .next-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      border: none;
+      background: #1e90ff;
+      color: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+      width: 100%;
+      max-width: 250px;
+      display: block;
+      text-align: center;
+    }
+
+    .next-btn:disabled {
+      background: #555;
+    }
+
+    .correct {
+      background-color: green !important;
+    }
+
+    .incorrect {
+      background-color: red !important;
+    }
+
+    .result-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @media (max-width: 600px) {
+      .intro h1 {
+        font-size: 1.5em;
+      }
+
+      .button, .option-btn, .submit-btn, .next-btn {
+        font-size: 0.9em;
+        width: 80%;
+      }
+
+      .input-container, .option-container, .choices-container {
+        padding: 15px;
+        max-width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Pembukaan dengan teks animasi -->
+  <div class="intro">
+    <h1 id="intro-text">Selamat Datang di Ujian Hacker!</h1>
+    <button class="button" id="start-button" onclick="startExam()">Mulai</button>
+  </div>
+
+  
+  <div id="name-input" class="hidden input-container">
+    <h2>Masukkan Nama:</h2>
+    <input type="text" id="user-name" placeholder="Nama Anda">
+    <button class="submit-btn" onclick="chooseOption()">Lanjut</button>
+  </div>
+
+  <div id="hacker-options" class="hidden option-container">
+    <h2>Pilih Jenis Hacker:</h2>
+    <button class="option-btn" onclick="startQuestions('website')">Hacker Website</button>
+    <button class="option-btn" onclick="startQuestions('device')">Hacker Device</button>
+  </div>
+
+  <div id="question-container" class="hidden input-container">
+    <h2 id="question-text"></h2>
+    <div id="choices-container" class="choices-container"></div>
+    <button class="next-btn" id="next-btn" onclick="nextQuestion()" disabled>Pertanyaan Selanjutnya</button>
+  </div>
+
+ 
+  <div id="result" class="hidden result-container">
+    <h2 id="result-text"></h2>
+  </div>
+
+  <script>
+    const examData = {
+      website: {
+        questions: [
+          { question: "Apa itu HTTP?", choices: ["Protokol Transfer HyperText", "Bahasa Pemrograman", "Alat Hacking", "Virus"], answer: "Protokol Transfer HyperText" },
+          { question: "Apa itu SQL Injection?", choices: ["Serangan ke database", "Serangan pada web server", "Alat enkripsi", "Antivirus"], answer: "Serangan ke database" },
+          { question: "Apa itu Cross-Site Scripting (XSS)?", choices: ["Serangan terhadap jaringan", "Serangan terhadap aplikasi mobile", "Eksploitasi pada aplikasi web", "Serangan terhadap perangkat keras"], answer: "Eksploitasi pada aplikasi web" },
+          { question: "Apa itu Phishing?", choices: ["Serangan penipuan untuk mencuri data pribadi", "Serangan DDoS", "Menyusupkan virus pada perangkat", "Mengakses data tanpa izin"], answer: "Serangan penipuan untuk mencuri data pribadi" },
+          { question: "Apa yang dimaksud dengan keamanan aplikasi web?", choices: ["Melindungi aplikasi dari serangan", "Meningkatkan kecepatan aplikasi", "Memperbaiki bug aplikasi", "Mempercepat koneksi internet"], answer: "Melindungi aplikasi dari serangan" },
+          { question: "Apa itu SQL?", choices: ["Bahasa pemrograman", "Alat pengelola basis data", "Alat keamanan", "Sistem operasi"], answer: "Alat pengelola basis data" }
+        ]
+      },
+      device: {
+        questions: [
+          { question: "Apa itu Rooting?", choices: ["Mengakses level sistem di perangkat", "Memperbaiki perangkat", "Mempercepat jaringan", "Menghapus data"], answer: "Mengakses level sistem di perangkat" },
+          { question: "Apa fungsi dari VPN?", choices: ["Menyembunyikan alamat IP", "Mempercepat koneksi", "Mengakses deep web", "Memperbaiki perangkat"], answer: "Menyembunyikan alamat IP" },
+          { question: "Apa itu Jailbreak?", choices: ["Memodifikasi perangkat Apple", "Menambah kapasitas perangkat", "Mengubah sistem operasi", "Mempercepat koneksi internet"], answer: "Memodifikasi perangkat Apple" },
+          { question: "Apa itu enkripsi?", choices: ["Proses mengubah data menjadi format yang tidak dapat dibaca tanpa kunci", "Proses memformat perangkat", "Proses mempercepat komunikasi", "Proses meningkatkan keamanan jaringan"], answer: "Proses mengubah data menjadi format yang tidak dapat dibaca tanpa kunci" },
+          { question: "Apa itu RAT (Remote Access Trojan)?", choices: ["Malware yang memberi akses kontrol jarak jauh pada perangkat", "Program untuk mempercepat perangkat", "Alat untuk meningkatkan performa", "Jenis serangan DDoS"], answer: "Malware yang memberi akses kontrol jarak jauh pada perangkat" },
+          { question: "Apa itu Social Engineering?", choices: ["Manipulasi psikologis untuk mendapatkan informasi", "Serangan DDoS", "Mencuri data dengan teknik brute force", "Serangan pada perangkat keras"], answer: "Manipulasi psikologis untuk mendapatkan informasi" }
+        ]
+      }
+    };
+
+    let currentQuestion = 0;
+    let score = 0;
+    let userName = "";
+    let questions = [];
+
+    function startExam() {
+      document.querySelector('.intro').classList.add('hidden');
+      document.getElementById('name-input').classList.remove('hidden');
+    }
+
+    function chooseOption() {
+      userName = document.getElementById('user-name').value.trim();
+      if (userName === "") {
+        alert("Nama tidak boleh kosong!");
+        return;
+      }
+      document.getElementById('name-input').classList.add('hidden');
+      document.getElementById('hacker-options').classList.remove('hidden');
+    }
+
+    function startQuestions(option) {
+      questions = examData[option].questions;
+      currentQuestion = 0;
+      score = 0;
+      document.getElementById('hacker-options').classList.add('hidden');
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const current = questions[currentQuestion];
+      document.getElementById('question-text').textContent = current.question;
+      const choicesContainer = document.getElementById('choices-container');
+      choicesContainer.innerHTML = '';
+      current.choices.forEach(choice => {
+        const btn = document.createElement('button');
+        btn.textContent = choice;
+        btn.classList.add('choice-btn');
+        btn.onclick = () => checkAnswer(choice);
+        choicesContainer.appendChild(btn);
+      });
+      document.getElementById('question-container').classList.remove('hidden');
+    }
+
+    function checkAnswer(selectedAnswer) {
+      const correctAnswer = questions[currentQuestion].answer;
+      const choiceBtns = document.querySelectorAll('.choice-btn');
+      
+      choiceBtns.forEach(btn => {
+        btn.disabled = true;
+        if (btn.textContent === selectedAnswer) {
+          btn.classList.add(selectedAnswer === correctAnswer ? 'correct' : 'incorrect');
+        }
+        if (btn.textContent === correctAnswer) {
+          btn.classList.add('correct');
+        }
+      });
+
+      if (selectedAnswer === correctAnswer) {
+        score++;
+      }
+
+      document.getElementById('next-btn').disabled = false;
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      if (currentQuestion < questions.length) {
+        showQuestion();
+        document.getElementById('next-btn').disabled = true;
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      document.getElementById('question-container').classList.add('hidden');
+      const resultText = `Skor Anda: ${score} dari ${questions.length}`;
+      document.getElementById('result-text').textContent = resultText;
+
+      if (score >= 7) {
+        document.getElementById('result-text').textContent += " - Hebat, Anda berhasil!";
+      } else {
+        document.getElementById('result-text').textContent += " - Cobalah lagi!";
+      }
+
+      document.getElementById('result').classList.remove('hidden');
+    }
+  </script>
+
+</body>
+</html>
